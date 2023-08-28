@@ -2,7 +2,8 @@
  
 This project is an open-source framework to enable obfuscation of constants, variables, and strings.
 
-Example output of obfuscated data can be found [here](https://github.com/Sherman0236/XorData/blob/master/assets/assets.md).
+Example output of obfuscated data can be found [here](https://github.com/Sherman0236/XorData/blob/main/assets/assets.md).
+
 My blog post describing project the project can be found [here](https://sherman0236.github.io/posts/data-obf/).
 
 ## Features
