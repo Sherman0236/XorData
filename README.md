@@ -2,7 +2,8 @@
  
 This project is an open-source framework to enable obfuscation of constants, variables, and strings.
 
-Example output of obfuscated data can be found [here](https://github.com/Sherman0236/XorData/blob/master/assets/assets).
+Example output of obfuscated data can be found [here](https://github.com/Sherman0236/XorData/blob/master/assets/assets.md).
+My blog post describing project the project can be found [here](https://sherman0236.github.io/posts/data-obf/).
 
 ## Features
 * Compile time constant obfuscation 
@@ -10,6 +11,11 @@ Example output of obfuscated data can be found [here](https://github.com/Sherman
 * Run time variable obfuscation
 * Unique encryption keys per compilation and usage 
 * 64-bit FNV hashing
+* Utilizes SIMD (SSE)
+
+## Disclaimer
+
+The obfuscation techniques implemented in this project are not intended to be foolproof. They serve as a foundation that should be enhanced further. The goal of this project is not to provide absolute protection but to obfuscate data effectively. Please note the provided code is designed for MSVC and requires C++17 or newer.
 
 ## License
 
