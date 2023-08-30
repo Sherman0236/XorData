@@ -2,7 +2,7 @@
 #include "XorConstant.hpp"
 #include <immintrin.h>
 
-#define MakeXorVariable(value) enc::MakeXorVariableImpl<decltype(value), hash::fnv64<UNIQUE_SEED64>(__FILE__)>(value)
+#define MakeXorVariable(value) enc::MakeXorVariableImpl<decltype(value), hash::fnv<UNIQUE_SEED>(__FILE__)>(value)
 
 namespace enc
 {
@@ -11,8 +11,8 @@ namespace enc
 	/// </summary>
 	/// <typeparam name="T">Type of the value</typeparam>
 	/// <typeparam name="Seed">The seed used for key generation</typeparam>
-	template <typename T, uint64_t Seed>
-	class XorValue
+	template <typename T, uintptr_t Seed>
+	class XorVariable
 	{
 		static_assert(std::is_arithmetic<T>::value || std::is_pointer<T>::value, 
 			"Type T must be an integral type, a pointer, or a floating point type.");
@@ -23,7 +23,7 @@ namespace enc
 		/// <summary>
 		/// Initializes a XorValue class with the given data
 		/// </summary>
-		constexpr XorValue(T data)
+		XorVariable(T data)
 		{
 			Encrypt(data);
 		}
@@ -61,7 +61,7 @@ namespace enc
 		/// Encrypts and stores the provided provided data
 		/// </summary>
 		/// <param name="data">The value to encrypt</param>
-		constexpr __forceinline void Encrypt(T data)
+		__forceinline void Encrypt(T data)
 		{
 			__m128i result = Encode(data);
 			result = _mm_add_epi64(result, _mm_set1_epi64x(Key1.GetCrypt()));
@@ -98,12 +98,12 @@ namespace enc
 		{
 			if constexpr (std::is_pointer_v<T>)
 			{
-				return _mm_set1_epi64x(reinterpret_cast<uint64_t>(data));
+				return _mm_set1_epi64x(reinterpret_cast<uintptr_t>(data));
 			}
 			
 			if constexpr (std::is_integral_v<T>)
 			{
-				return _mm_set1_epi64x(static_cast<uint64_t>(data));
+				return _mm_set1_epi64x(static_cast<uintptr_t>(data));
 			}
 			
 			if constexpr (std::is_same_v<T, float>)
@@ -126,12 +126,20 @@ namespace enc
 		{
 			if constexpr (std::is_pointer_v<T>)
 			{
+#ifdef _WIN64
 				return reinterpret_cast<T>(_mm_cvtsi128_si64(data));
+#else
+				return reinterpret_cast<T>(_mm_cvtsi128_si32(data));
+#endif
 			}
 			
 			if constexpr (std::is_integral_v<T>)
 			{
+#ifdef _WIN64
 				return static_cast<T>(_mm_cvtsi128_si64(data));
+#else
+				return static_cast<T>(_mm_cvtsi128_si32(data));
+#endif
 			}
 			
 			if constexpr (std::is_same_v<T, float>)
@@ -150,7 +158,7 @@ namespace enc
 		/// </summary>
 		/// <returns>Pseudo-random seed for a key</returns>
 		template <uint32_t LineNumber>
-		static constexpr uint64_t ComputeKeySeed()
+		static constexpr uintptr_t ComputeKeySeed()
 		{
 			return Seed % (LineNumber + 1);
 		}
@@ -160,17 +168,17 @@ namespace enc
 		/// </summary>
 		/// <returns>Pseudo-random value for a key</returns>
 		template <uint32_t LineNumber>
-		static constexpr uint64_t ComputeKeyValue()
+		static constexpr uintptr_t ComputeKeyValue()
 		{
-			return UNIQUE_SEED64 + ComputeKeySeed<LineNumber>();
+			return UNIQUE_SEED + ComputeKeySeed<LineNumber>();
 		}
 
 		__m128i m_encryptedData = {};
 
 		// The constant keys used for encryption/decryption
-		XorConstant<uint64_t, ComputeKeyValue<USABLE_LINE>(), ComputeKeySeed<USABLE_LINE>()> Key1 = {};
-		XorConstant<uint64_t, ComputeKeyValue<USABLE_LINE>(), ComputeKeySeed<USABLE_LINE>()> Key2 = {};
-		XorConstant<uint64_t, ComputeKeyValue<USABLE_LINE>(), ComputeKeySeed<USABLE_LINE>()> Key3 = {};
+		XorConstant<uintptr_t, ComputeKeyValue<USABLE_LINE>(), ComputeKeySeed<USABLE_LINE>()> Key1 = {};
+		XorConstant<uintptr_t, ComputeKeyValue<USABLE_LINE>(), ComputeKeySeed<USABLE_LINE>()> Key2 = {};
+		XorConstant<uintptr_t, ComputeKeyValue<USABLE_LINE>(), ComputeKeySeed<USABLE_LINE>()> Key3 = {};
 	};
 
 	/// <summary>
@@ -180,9 +188,9 @@ namespace enc
 	/// <typeparam name="Seed">The seed used for encryption</typeparam>
 	/// <param name="value">The value to be encrypted</param>
 	/// <returns>An instance of XorValue</returns>
-	template <typename T, uint64_t Seed>
-	constexpr auto MakeXorVariableImpl(T value)
+	template <typename T, uintptr_t Seed>
+	auto MakeXorVariableImpl(T value)
 	{
-		return XorValue<T, Seed>(value);
+		return XorVariable<std::remove_const_t<T>, Seed>(value);
 	}
 }
