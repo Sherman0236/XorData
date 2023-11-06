@@ -4,15 +4,15 @@ This project is an open-source framework to enable obfuscation of constants, var
 
 Example output of obfuscated data can be found [here](https://github.com/Sherman0236/XorData/blob/main/assets/assets.md).
 
-My blog post describing project the project can be found [here](https://sherman0236.github.io/posts/data-obf/).
+My blog post describing the project can be found [here](https://sherman0236.github.io/posts/data-obf/).
 
 ## Features
 * Compile time constant obfuscation 
 * Compile time string obfuscation
 * Run time variable obfuscation
-* Unique encryption keys per compilation and usage 
+* Unique encryption keys per compilation and declaration 
 * 64-bit FNV hashing
-* Utilizes SIMD (SSE)
+* SIMD (SSE) utilization
 
 ## Disclaimer
 
